@@ -9,10 +9,6 @@ print(
     5. Mafia Snake
     '''
 )
-    
-snake = ''
-'''while snake not in ['1','2','3','4','5']:
-    snake = input('> ')'''
 
 applenumb,duration,copused,bulletmodifier = 1,1,1,1
 
