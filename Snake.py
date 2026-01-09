@@ -1,36 +1,140 @@
 import pygame,random,time,math
+
+print(
+    '''Choose your snake:
+    1. Classic Snake
+    2. Daniel Snake
+    3. Dealer Snake
+    4. Sheriff Snake
+    5. Mafia Snake
+    '''
+)
+    
+snake = ''
+'''while snake not in ['1','2','3','4','5']:
+    snake = input('> ')'''
+
+applenumb,duration,copused,bulletmodifier = 1,1,1,1
+
 pygame.init()
 pygame.font.init()
+def init():
+    global snakecells,direction,buttoninputs,tick,lastmove,ticksfromapple,visualq,speedq,copcells,everysnakecell,allcells,cooldown,hasbullets,bullets,copfreeze
+    global font,text_surface,running,applenumb,duration,copused,bulletmodifier,apples,papples,vapples,fapples,sapples,mapples,tapples,bapples,applelist
+    temprun = True
+    snakes = ['Classic Snake', 'Daniel Snake', 'Dealer Snake', 'Sheriff Snake', 'Mafia Snake']
+    snake = ''
+    applenumb,duration,copused,bulletmodifier = 1,1,1,1
+    while temprun:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                temprun = False
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    snake = '1'
+                    temprun = False
+                elif event.key == pygame.K_2:
+                    snake = '2'
+                    temprun = False
+                elif event.key == pygame.K_3:
+                    snake = '3'
+                    temprun = False
+                elif event.key == pygame.K_4:
+                    snake = '4'
+                    temprun = False
+                elif event.key == pygame.K_5:
+                    snake = '5'
+                    temprun = False
+        canvas.fill([0,0,0])
+        text_surface = font.render(f'Type the number of your snake:', True, (255, 255, 255))
+        text_rect = text_surface.get_rect()
+        text_rect.center = (canvas.get_width()/2,45) # type: ignore
+        canvas.blit(text_surface,text_rect)
+        for i in range(1,6):
+            pygame.draw.rect(canvas,[150,150,150],(canvas.get_width()/2-100,i*50+25,200,40))
+            text_surface = font.render(f'{i}: {snakes[i-1]}', True, (255, 255, 255))
+            text_rect = text_surface.get_rect()
+            text_rect.center = (canvas.get_width()/2,i*50+45) # type: ignore
+            canvas.blit(text_surface,text_rect)
+        pygame.display.flip()
+    if snake == '1':
+        pass
+    elif snake == '2':
+        applenumb = 10
+    elif snake == '3':
+        duration = 5
+    elif snake == '4':
+        copused = 0
+    elif snake == '5':
+        bulletmodifier = 2
+    applelist = []
+    apples = [Apple() for i in range(5*applenumb)]
+    papples = [Papple() for i in range(1*duration)]
+    vapples = [Vapple() for i in range(1*duration)]
+    fapples = [Flashapple() for i in range(1*duration)]
+    sapples = [Sapple() for i in range(1*duration)]
+    mapples = [Mapple() for i in range(1*duration)]
+    tapples = [Tapple() for i in range(1*duration)]
+    bapples = [Bapple() for i in range(5*duration)]
+    tick = 1
+    visualq = []
+    speedq = []
 
-font = pygame.font.SysFont('Roboto', 30)
+    allcells = [(i,j) for i in range(grid_ds[0]) for j in range(grid_ds[1])]
+    
+    snakecells = [(grid_ds[0]//2-1,grid_ds[1]//2),(grid_ds[0]//2,grid_ds[1]//2),(grid_ds[0]//2+1,grid_ds[1]//2)]
+    for i in snakecells:
+        allcells.remove(i)
+    for i in applelist:
+        i.respawn()
+    direction = (1,0)
+    buttoninputs = pygame.K_UP
+    tick = 1
+    lastmove = direction
+    ticksfromapple = 1
+    cooldown = 0
+    hasbullets = 0
+    copfreeze = 0
+    copcells = []
+    everysnakecell = []
+    bullets = []
+    text_surface = font.render(f'Score: {len(snakecells)}', True, (255, 255, 255))
+    
+    
+applelist = []
+tick = 1
+speed = 5
+padding = 1
+cellsize = 10
+totalsize = cellsize + 2*padding
+visualq = []
+speedq = []
 grid_ds = (50,50)
 allcells = [(i,j) for i in range(grid_ds[0]) for j in range(grid_ds[1])]
-cellsize = 10
-padding = 1
-totalsize = cellsize + 2*padding
 snakecells = [(grid_ds[0]//2-1,grid_ds[1]//2),(grid_ds[0]//2,grid_ds[1]//2),(grid_ds[0]//2+1,grid_ds[1]//2)]
-hasbullets = 0
-cooldown = 0
-bullets = []
-copfreeze = 0
 for i in snakecells:
     allcells.remove(i)
-text_surface = font.render(f'Score: {len(snakecells)}', True, (255, 255, 255))
-
+for i in applelist:
+    i.respawn()
 direction = (1,0)
 buttoninputs = pygame.K_UP
 tick = 1
-speed = 5
-canvas = pygame.display.set_mode((grid_ds[0]*totalsize,grid_ds[1]*totalsize))
+lastmove = direction
+alive = True
+ticksfromapple = 1
+cooldown = 0
+hasbullets = 0
+copfreeze = 0
+copcells = []
+everysnakecell = []
+bullets = []
 running = True
+canvas = pygame.display.set_mode((grid_ds[0]*totalsize,grid_ds[1]*totalsize))
+font = pygame.font.SysFont('Roboto', 30)
+text_surface = font.render(f'Score: {len(snakecells)}', True, (255, 255, 255))
 clock = pygame.time.Clock()
 
-lastmove = direction
-
-alive = True
-
-visualq = []
-speedq = []
 
 class Apple:
     def __init__(self,color=[255,0,0]):
@@ -122,49 +226,17 @@ class Bapple(Apple):
     def oneat(self):
         global hasbullets
         super().oneat()
-        hasbullets += 3 #Custom How much ammo a bullet gives
+        hasbullets += 3*bulletmodifier #Custom How much ammo a bullet gives
         
 
 applelist:list[Apple] = []
-        
-
-apples = [Apple() for i in range(5)]
-
-papples = [Papple() for i in range(1)]
-vapples = [Vapple() for i in range(1)]
-fapples = [Flashapple() for i in range(1)]
-sapples = [Sapple() for i in range(1)]
-mapples = [Mapple() for i in range(1)]
-tapples = [Tapple() for i in range(1)]
-bapples = [Bapple() for i in range(5)]
+init()
 
 #Custom Each of those numbers is how many of that apple you want
 
 
 
-def init():
-    global snakecells,direction,buttoninputs,tick,lastmove,alive,ticksfromapple,applelist,visualq,speedq,copcells,everysnakecell,allcells,cooldown,hasbullets,bullets,copfreeze
-    visualq = []
-    speedq = []
-    allcells = [(i,j) for i in range(grid_ds[0]) for j in range(grid_ds[1])]
-    
-    snakecells = [(grid_ds[0]//2-1,grid_ds[1]//2),(grid_ds[0]//2,grid_ds[1]//2),(grid_ds[0]//2+1,grid_ds[1]//2)]
-    for i in snakecells:
-        allcells.remove(i)
-    for i in applelist:
-        i.respawn()
-    direction = (1,0)
-    buttoninputs = pygame.K_UP
-    tick = 1
-    lastmove = direction
-    alive = True
-    ticksfromapple = 1
-    cooldown = 0
-    hasbullets = 0
-    copfreeze = 0
-    copcells = []
-    everysnakecell = []
-    bullets = []
+
 
 
 def changedirectionofsnake(buttoninput):
@@ -226,7 +298,6 @@ def drawscreen(snake=True):
         pygame.draw.circle(canvas,[192,192,192],i[0],5)
         
     pygame.display.flip()
-
     
 def checkdeath():
     if snakecells[-1] in snakecells[:-1]:
@@ -300,16 +371,15 @@ def updatebullets():
             d = (i[0][0]-cellpos[0],i[0][1]-cellpos[1])
             distance =  math.sqrt(d[0]**2+d[1]**2)
             if distance < totalsize*2:
-                copfreeze = 300 #Custom How long the cop stops when you hit him
+                copfreeze = 300/(bulletmodifier*3) #Custom How long the cop stops when you hit him
             elif distance < totalsize*2 * 5: #Custom That second number is how much bigger his 'nearby' area is
-                copfreeze = 20 #Custom How long the cop stops when you almost hit him
-    
+                copfreeze = 20/(bulletmodifier*3) #Custom How long the cop stops when you almost hit him
+
 copcells = []
 everysnakecell = []
 createpathbase()
 ticksfromapple = 1
 if __name__ == '__main__':
-    init()
     drawscreen()
     snakesave = snakecells.copy()
     while running:
@@ -328,11 +398,11 @@ if __name__ == '__main__':
                 snakesave = snakecells.copy()
                 followai(False)
                 everysnakecell.append(snakecells[0])
-                if tick > 20:
+                if tick*copused > 20:
                     if copfreeze <= 0:
                         if len(set(copcells)) < 1:
                             copcells.append(everysnakecell.pop(0))
-                        elif random.random() < .7:
+                        elif random.random() < .7*bulletmodifier:
                             cophead = copcells[-1]
                             snakehead = snakecells[-1]
                             diff = [snakehead[0]-cophead[0],snakehead[1]-cophead[1]]
