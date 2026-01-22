@@ -1,68 +1,72 @@
 import pygame,random,time,math
 
-applenumb,duration,copused,bulletmodifier = 1,1,1,1
-
+applenumb,extraproduct,copused,bulletmodifier = 1,1,1,1
 pygame.init()
 pygame.font.init()
+
+class Button:
+    def __init__(self,pos,text) -> None:
+        self.rect = pygame.Rect(0, 0, 200, 40)
+        self.rect.center = pos
+        self.color = (150, 150, 150)
+        self.text = text
+        self.font = pygame.font.SysFont('Roboto', 30)
+
+    def draw(self):
+        pygame.draw.rect(canvas, self.color, self.rect)
+        text_surface = self.font.render(self.text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        canvas.blit(text_surface, text_rect)
+        
+    def is_clicked(self, mouse_pos):
+        return self.rect.collidepoint(mouse_pos)
+
+
+
 def init():
     global snakecells,direction,buttoninputs,tick,lastmove,ticksfromapple,visualq,speedq,copcells,everysnakecell,allcells,cooldown,hasbullets,bullets,copfreeze
-    global font,text_surface,running,applenumb,duration,copused,bulletmodifier,apples,papples,vapples,fapples,sapples,mapples,tapples,bapples,applelist
+    global font,text_surface,running,applenumb,extraproduct,copused,bulletmodifier,apples,papples,vapples,fapples,sapples,mapples,tapples,bapples,applelist
     temprun = True
     snakes = ['Classic Snake', 'Daniel Snake', 'Dealer Snake', 'Sheriff Snake', 'Mafia Snake']
     snake = ''
     applenumb,duration,copused,bulletmodifier = 1,1,1,1
+    buttons:list[Button] = []
+    for i in range(len(snakes)):
+        buttons.append(Button((canvas.get_width()/2, 100 + i * 50), snakes[i]))
     while temprun:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 temprun = False
                 running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    snake = '1'
-                    temprun = False
-                elif event.key == pygame.K_2:
-                    snake = '2'
-                    temprun = False
-                elif event.key == pygame.K_3:
-                    snake = '3'
-                    temprun = False
-                elif event.key == pygame.K_4:
-                    snake = '4'
-                    temprun = False
-                elif event.key == pygame.K_5:
-                    snake = '5'
-                    temprun = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left mouse button
+                    for i in buttons:
+                        if i.is_clicked(event.pos):
+                            snake = str(buttons.index(i) + 1)
+                            temprun = False
         canvas.fill([0,0,0])
-        text_surface = font.render(f'Type the number of your snake:', True, (255, 255, 255))
-        text_rect = text_surface.get_rect()
-        text_rect.center = (canvas.get_width()/2,45) # type: ignore
-        canvas.blit(text_surface,text_rect)
-        for i in range(1,6):
-            pygame.draw.rect(canvas,[150,150,150],(canvas.get_width()/2-100,i*50+25,200,40))
-            text_surface = font.render(f'{i}: {snakes[i-1]}', True, (255, 255, 255))
-            text_rect = text_surface.get_rect()
-            text_rect.center = (canvas.get_width()/2,i*50+45) # type: ignore
-            canvas.blit(text_surface,text_rect)
+        for i in buttons:
+            i.draw()
         pygame.display.flip()
     if snake == '1':
         pass
     elif snake == '2':
         applenumb = 10
     elif snake == '3':
-        duration = 5
+        extraproduct = 5
     elif snake == '4':
         copused = 0
     elif snake == '5':
         bulletmodifier = 2
     applelist = []
     apples = [Apple() for i in range(5*applenumb)]
-    papples = [Papple() for i in range(1*duration)]
-    vapples = [Vapple() for i in range(1*duration)]
-    fapples = [Flashapple() for i in range(1*duration)]
-    sapples = [Sapple() for i in range(1*duration)]
-    mapples = [Mapple() for i in range(1*duration)]
-    tapples = [Tapple() for i in range(1*duration)]
-    bapples = [Bapple() for i in range(5*duration)]
+    papples = [Papple() for i in range(1*extraproduct)]
+    vapples = [Vapple() for i in range(1*extraproduct)]
+    fapples = [Flashapple() for i in range(1*extraproduct)]
+    sapples = [Sapple() for i in range(1*extraproduct)]
+    mapples = [Mapple() for i in range(1*extraproduct)]
+    tapples = [Tapple() for i in range(1*extraproduct)]
+    bapples = [Bapple() for i in range(5*extraproduct)]
     tick = 1
     visualq = []
     speedq = []
