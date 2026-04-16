@@ -3,7 +3,7 @@ from wordfreq import top_n_list
 from passwordlib.commonly_used import is_commonly_used
 
 
-def drawpasswordguess(password):
+def evalpassword(password):
     modifiers = ['Nanoseconds', 'Microseconds', 'Milliseconds', 'Seconds', 'Minutes', 'Hours', 'Days', 'Weeks', 'Months', 'Years', 'Decades', 'Centuries', 'Millennia']
     times = [1/1e9, 1/1e6, 1/1e3, 1, 60, 3600, 86400, 604800, 2629800, 31557600, 315576000, 3155760000, 31557600000]
     strength = getstrength(password,times)
@@ -22,7 +22,6 @@ def getstrength(password:str,times):
         issues.append('No numbers')
     if any(i in '!@#$%^&*()-+<>?,.[]{}=_|/~`' for i in password):
         chars += len('!@#$%^&*()-+<>?,.[]{}=_|/~`')
-        print(len('!@#$%^&*()-+<>?,.[]{}=_|/~`'))
     else:
         issues.append('No special characters')
     if len(password) < 8:
@@ -55,7 +54,7 @@ if __name__ == "__main__":
         if inp == 'exit':
             running = False
         else:
-            strength, modifier, rawstrength, issues = drawpasswordguess(inp)
+            strength, modifier, rawstrength, issues = evalpassword(inp)
             print(f"Time to break password: {formattext(strength)} {modifier}")
             score = round(math.log(rawstrength,1000)+3,2)
             print(f'Your password score is {score}'+(' (very weak)' if score < 3 else ' (weak)' if score < 5 else ' (okay)' if score < 6 else ' (strong)' if score < 6.5 else ' (very strong)'))
