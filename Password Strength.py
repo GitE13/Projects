@@ -62,3 +62,7 @@ if __name__ == "__main__":
                 print('Issues found with your password:')
                 for issue in issues:
                     print(f' - {issue}')
+            elif score > 6.5:
+                print('No issues found with your password!')
+            else:
+                print('No obvious issues found with your password, but it is still too simple.')
